@@ -1,0 +1,21 @@
+{
+    "generated_at": "2026-06-16T16:04:02+00:00",
+    "frameworks": {
+        "Skim": {
+            "label": "skim",
+            "url": "http:\/\/skim\/"
+        },
+        "Symfony": {
+            "label": "symfony",
+            "url": "http:\/\/symfony\/"
+        },
+        "Laravel": {
+            "label": "laravel",
+            "url": "http:\/\/laravel\/"
+        },
+        "CodeIgniter 4": {
+            "label": "ci4",
+            "url": "http:\/\/ci4\/"
+        }
+    }
+}

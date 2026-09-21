@@ -1,0 +1,25 @@
+{
+  "name": "skim/worker-bench",
+  "description": "Skim worker-mode benchmark app",
+  "type": "project",
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../source/skim_framework_src",
+      "options": {
+        "symlink": false
+      }
+    }
+  ],
+  "require": {
+    "php": "^8.5",
+    "skim/framework": "*"
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}
