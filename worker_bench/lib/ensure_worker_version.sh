@@ -51,7 +51,7 @@ load_env_file() {
 load_env_file
 
 SKIM_VERSION=${SKIM_VERSION:-}
-SKIM_REPO_URL=${SKIM_REPO_URL:-https://github.com/skimphp/skim_framework_dev.git}
+SKIM_REPO_URL=${SKIM_REPO_URL:-https://github.com/skimphp/framework.git}
 SKIM_BRANCH=${SKIM_BRANCH:-worker_mode}
 SKIM_COMMIT=${SKIM_COMMIT:-}
 FRANKENPHP_VERSION=${FRANKENPHP_VERSION:-php8.5}
