@@ -1,0 +1,91 @@
+name: skim_worker
+
+services:
+  skim:
+    build:
+      context: .
+      dockerfile: frameworks/skim/Dockerfile
+      args:
+        FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
+    image: skim_worker_skim:latest
+    ports:
+      - "${SKIM_PORT:-9101}:80"
+    environment:
+      APP_DEBUG: "${APP_DEBUG:-false}"
+      WORKER_MAX_REQUESTS: "${WORKER_MAX_REQUESTS:-1000}"
+      WORKER_NUM: "${WORKER_NUM:-4}"
+      FRANKENPHP_CONFIG: "worker /app/frameworks/skim/public/worker.php"
+      SERVER_NAME: ":80"
+      CADDY_GLOBAL_OPTIONS: "auto_https off"
+    networks:
+      - worker_bench
+
+  symfony:
+    build:
+      context: ./frameworks/symfony
+      args:
+        FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
+    image: skim_worker_symfony:latest
+    ports:
+      - "9102:80"
+    environment:
+      DEFAULT_URI: "http://localhost"
+    networks:
+      - worker_bench
+
+  laravel:
+    build:
+      context: ./frameworks/laravel
+      args:
+        FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
+    image: skim_worker_laravel:latest
+    ports:
+      - "9103:80"
+    environment:
+      APP_ENV: "production"
+      APP_DEBUG: "false"
+      OCTANE_SERVER: "frankenphp"
+    networks:
+      - worker_bench
+
+  ci4:
+    build:
+      context: ./frameworks/ci4
+      args:
+        FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
+    image: skim_worker_ci4:latest
+    ports:
+      - "9104:80"
+    networks:
+      - worker_bench
+
+  slim:
+    build:
+      context: ./frameworks/slim
+      args:
+        FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
+    image: skim_worker_slim:latest
+    ports:
+      - "9105:80"
+    networks:
+      - worker_bench
+
+  bench:
+    build:
+      context: ..
+      dockerfile: docker/bench/Dockerfile
+    image: skim_worker_bench:latest
+    volumes:
+      - ../:/app:delegated
+    working_dir: /app
+    depends_on:
+      - skim
+      - symfony
+      - laravel
+      - ci4
+      - slim
+    networks:
+      - worker_bench
+
+networks:
+  worker_bench:
