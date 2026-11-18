@@ -1,0 +1,99 @@
+name: skim_worker_classic
+
+# Classic (non-worker) FrankenPHP variants of the same images.
+# php_server serves each request through a fresh PHP boot — no worker loop.
+# Reuses skim_worker_* images; mounts classic entry + Caddyfile at runtime.
+# Shares the worker_bench network so the bench service can reach both modes.
+
+services:
+  skim-classic:
+    image: skim_worker_skim:latest
+    ports:
+      - "9201:80"
+    volumes:
+      - ./frameworks/skim/public/index.classic.php:/app/frameworks/skim/public/index.php:ro
+      - ./frameworks/skim/routes.php:/app/frameworks/skim/routes.php:ro
+      - ./frameworks/Caddyfile.classic-skim:/etc/frankenphp/Caddyfile:ro
+      - ./frameworks/php.classic.ini:/usr/local/etc/php/conf.d/classic.ini:ro
+    networks:
+      - worker_bench
+
+  symfony-classic:
+    image: skim_worker_symfony:latest
+    ports:
+      - "9202:80"
+    volumes:
+      - ./frameworks/symfony/public/index.classic.php:/app/public/index.php:ro
+      - ./frameworks/symfony/src/Controller/DefaultController.php:/app/src/Controller/DefaultController.php:ro
+      - ./frameworks/Caddyfile.classic:/etc/frankenphp/Caddyfile:ro
+      - ./frameworks/php.classic.ini:/usr/local/etc/php/conf.d/classic.ini:ro
+    environment:
+      DEFAULT_URI: "http://localhost"
+    networks:
+      - worker_bench
+
+  laravel-classic:
+    image: skim_worker_laravel:latest
+    ports:
+      - "9203:80"
+    command: ["--config", "/etc/frankenphp/Caddyfile", "--adapter", "caddyfile"]
+    volumes:
+      - ./frameworks/laravel/routes/web.php:/app/routes/web.php:ro
+      - ./frameworks/Caddyfile.classic:/etc/frankenphp/Caddyfile:ro
+      - ./frameworks/php.classic.ini:/usr/local/etc/php/conf.d/classic.ini:ro
+    environment:
+      APP_ENV: "production"
+      APP_DEBUG: "false"
+    networks:
+      - worker_bench
+
+  ci4-classic:
+    image: skim_worker_ci4:latest
+    ports:
+      - "9204:80"
+    volumes:
+      - ./frameworks/ci4/public/index.classic.php:/app/public/index.php:ro
+      - ./frameworks/ci4/app/Controllers/Home.php:/app/app/Controllers/Home.php:ro
+      - ./frameworks/ci4/app/Config/Routes.php:/app/app/Config/Routes.php:ro
+      - ./frameworks/Caddyfile.classic:/etc/frankenphp/Caddyfile:ro
+      - ./frameworks/php.classic.ini:/usr/local/etc/php/conf.d/classic.ini:ro
+    networks:
+      - worker_bench
+
+  slim-classic:
+    image: skim_worker_slim:latest
+    ports:
+      - "9205:80"
+    volumes:
+      - ./frameworks/slim/public/index.classic.php:/app/public/index.php:ro
+      - ./frameworks/Caddyfile.classic:/etc/frankenphp/Caddyfile:ro
+      - ./frameworks/php.classic.ini:/usr/local/etc/php/conf.d/classic.ini:ro
+    networks:
+      - worker_bench
+
+  leaf-classic:
+    image: skim_worker_leaf:latest
+    ports:
+      - "9206:80"
+    volumes:
+      - ./frameworks/leaf/public/index.classic.php:/app/public/index.php:ro
+      - ./frameworks/Caddyfile.classic:/etc/frankenphp/Caddyfile:ro
+      - ./frameworks/php.classic.ini:/usr/local/etc/php/conf.d/classic.ini:ro
+    networks:
+      - worker_bench
+
+  flight-classic:
+    image: skim_worker_flight:latest
+    ports:
+      - "9207:80"
+    volumes:
+      - ./frameworks/flight/public/index.classic.php:/app/public/index.php:ro
+      - ./frameworks/Caddyfile.classic:/etc/frankenphp/Caddyfile:ro
+      - ./frameworks/php.classic.ini:/usr/local/etc/php/conf.d/classic.ini:ro
+    networks:
+      - worker_bench
+
+networks:
+  worker_bench:
+    name: skim_worker_worker_bench
+    external: true

@@ -135,6 +135,24 @@ the runtime isn't.
 
 ---
 
+## Comparing against other frameworks
+
+The worker_bench suite (`worker_bench/`) runs Skim, Symfony, Laravel, CI4,
+Slim, Leaf and Flight as FrankenPHP worker containers. `compare_http.php`
+runs `http_hello.php` + `http_json.php` against all of them:
+
+```bash
+# inside the bench container (service names)
+docker compose -f worker_bench/docker-compose.worker.yml run --rm bench \
+  php /app/framework/compare_http.php
+
+# from the host (ports 9101-9107), or a subset
+php benchmarks/framework/compare_http.php --host
+php benchmarks/framework/compare_http.php skim,leaf,flight 300 10
+```
+
+Results go to `benchmarks/framework/results/compare-<timestamp>.json`.
+
 ## Reading the Results
 
 A single benchmark run produces output like:
@@ -163,6 +181,7 @@ into a regression CI check.
 
 ```
 benchmarks/
+├── compare_http.php         ← cross-framework hello/json vs worker_bench services
 ├── use.md                   ← this file
 ├── boot_isolation.php       ← App::instance() overhead
 ├── cache_hit.php            ← env + config read latency

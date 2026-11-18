@@ -10,6 +10,12 @@ Route::get('/json', function () {
     return response()->json(['time' => microtime(true)]);
 });
 
+Route::get('/db', function () {
+    $pdo = new PDO('pgsql:host=postgres;dbname=bench', 'bench', 'bench');
+    $pdo->query('SELECT 1');
+    return 'ok';
+});
+
 Route::get('/debug', function () {
     return response()->json([
         'env' => app()->environment(),

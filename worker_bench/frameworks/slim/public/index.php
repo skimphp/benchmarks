@@ -19,6 +19,13 @@ $handler = function (): void {
         return $response->withHeader('Content-Type', 'application/json');
     });
 
+    $app->get('/db', function (Request $request, Response $response, array $args) {
+        $pdo = new \PDO('pgsql:host=postgres;dbname=bench', 'bench', 'bench');
+        $pdo->query('SELECT 1');
+        $response->getBody()->write('ok');
+        return $response;
+    });
+
     $app->run();
 };
 

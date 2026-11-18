@@ -1,10 +1,14 @@
 name: skim_worker
 
+# All framework images build from one multi-stage Dockerfile
+# (frameworks/Dockerfile). The `base` stage is shared and cached.
+
 services:
   skim:
     build:
       context: .
-      dockerfile: frameworks/skim/Dockerfile
+      dockerfile: frameworks/Dockerfile
+      target: skim
       args:
         FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
     image: skim_worker_skim:latest
@@ -22,7 +26,9 @@ services:
 
   symfony:
     build:
-      context: ./frameworks/symfony
+      context: .
+      dockerfile: frameworks/Dockerfile
+      target: symfony
       args:
         FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
     image: skim_worker_symfony:latest
@@ -35,7 +41,9 @@ services:
 
   laravel:
     build:
-      context: ./frameworks/laravel
+      context: .
+      dockerfile: frameworks/Dockerfile
+      target: laravel
       args:
         FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
     image: skim_worker_laravel:latest
@@ -50,7 +58,9 @@ services:
 
   ci4:
     build:
-      context: ./frameworks/ci4
+      context: .
+      dockerfile: frameworks/Dockerfile
+      target: ci4
       args:
         FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
     image: skim_worker_ci4:latest
@@ -61,12 +71,40 @@ services:
 
   slim:
     build:
-      context: ./frameworks/slim
+      context: .
+      dockerfile: frameworks/Dockerfile
+      target: slim
       args:
         FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
     image: skim_worker_slim:latest
     ports:
       - "9105:80"
+    networks:
+      - worker_bench
+
+  leaf:
+    build:
+      context: .
+      dockerfile: frameworks/Dockerfile
+      target: leaf
+      args:
+        FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
+    image: skim_worker_leaf:latest
+    ports:
+      - "9106:80"
+    networks:
+      - worker_bench
+
+  flight:
+    build:
+      context: .
+      dockerfile: frameworks/Dockerfile
+      target: flight
+      args:
+        FRANKENPHP_VERSION: ${FRANKENPHP_VERSION:-php8.5}
+    image: skim_worker_flight:latest
+    ports:
+      - "9107:80"
     networks:
       - worker_bench
 
@@ -84,6 +122,8 @@ services:
       - laravel
       - ci4
       - slim
+      - leaf
+      - flight
     networks:
       - worker_bench
 

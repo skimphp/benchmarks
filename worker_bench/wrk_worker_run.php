@@ -1,32 +1,50 @@
 <?php declare(strict_types=1);
 
-require __DIR__ . '/../benchmarks/lib/env_loader.php';
+require __DIR__ . '/lib/env_loader.php';
 require __DIR__ . '/lib/wrk.php';
 
 $benchDir = __DIR__;
 
-$frameworks = [
-    'Skim'          => 'http://skim/',
-    'Symfony'       => 'http://symfony/',
-    'Laravel'       => 'http://laravel/',
-    'CodeIgniter 4' => 'http://ci4/',
-    'Slim'          => 'http://slim/',
+$frameworkDefs = [
+    'Skim'          => ['skim',    'http://skim/'],
+    'Symfony'       => ['symfony', 'http://symfony/'],
+    'Laravel'       => ['laravel', 'http://laravel/'],
+    'CodeIgniter 4' => ['ci4',     'http://ci4/'],
+    'Slim'          => ['slim',    'http://slim/'],
+    'Leaf'          => ['leaf',    'http://leaf/'],
+    'Flight'        => ['flight',  'http://flight/'],
 ];
 
-$frameworkLabels = [
-    'Skim'          => 'skim',
-    'Symfony'       => 'symfony',
-    'Laravel'       => 'laravel',
-    'CodeIgniter 4' => 'ci4',
-    'Slim'          => 'slim',
-];
-
-$jsonEndpoints = [];
-foreach ($frameworks as $name => $url) {
-    $jsonEndpoints[$name] = rtrim($url, '/') . '/json';
+$mode = 'worker';
+if (in_array('--classic', $argv, true)) {
+    $mode = 'classic';
+}
+if (in_array('--fpm', $argv, true)) {
+    $mode = 'fpm';
 }
 
-$threads = parse_int_flag($argv, '--threads', 2);
+$fpmPorts = [
+    'skim' => 9301, 'symfony' => 9302, 'laravel' => 9303, 'ci4' => 9304,
+    'slim' => 9305, 'leaf' => 9306, 'flight' => 9307,
+];
+
+$frameworks = $frameworkLabels = [];
+foreach ($frameworkDefs as $name => [$label, $url]) {
+    $frameworks[$name] = match ($mode) {
+        'classic' => "http://{$label}-classic/",
+        'fpm'     => "http://nginx:{$fpmPorts[$label]}/",
+        default   => $url,
+    };
+    $frameworkLabels[$name] = $label;
+}
+
+$jsonEndpoints = $dbEndpoints = [];
+foreach ($frameworks as $name => $url) {
+    $jsonEndpoints[$name] = rtrim($url, '/') . '/json';
+    $dbEndpoints[$name]   = rtrim($url, '/') . '/db';
+}
+
+$threads = parse_worker_int_flag($argv, '--threads', 2);
 $duration = parse_worker_duration_flag($argv, '--duration', '30s');
 $concurrencyLevels = [1, 10];
 
@@ -50,17 +68,18 @@ if ($levelsFlag !== null) {
     }
 }
 
-$variantsFilter = parse_variants_filter($argv);
+$variantsFilter = parse_worker_variants_filter($argv);
 if ($variantsFilter !== null) {
-    $frameworks    = filter_frameworks_by_variants($frameworks, $frameworkLabels, $variantsFilter);
-    $jsonEndpoints = filter_frameworks_by_variants($jsonEndpoints, $frameworkLabels, $variantsFilter);
+    $frameworks    = filter_worker_frameworks_by_variants($frameworks, $frameworkLabels, $variantsFilter);
+    $jsonEndpoints = filter_worker_frameworks_by_variants($jsonEndpoints, $frameworkLabels, $variantsFilter);
+    $dbEndpoints   = filter_worker_frameworks_by_variants($dbEndpoints, $frameworkLabels, $variantsFilter);
     if ($frameworks === []) {
         fwrite(STDERR, "FATAL: --variants did not match any framework\n");
         exit(1);
     }
 }
 
-echo "wrk FrankenPHP Worker Benchmarks\n";
+echo 'wrk ' . ($mode === 'fpm' ? 'nginx + PHP-FPM' : 'FrankenPHP ' . ucfirst($mode)) . " Benchmarks\n";
 echo "==================================\n";
 echo "Threads: $threads, Duration: $duration, Concurrency: " . implode(', ', $concurrencyLevels) . "\n";
 if ($variantsFilter !== null) {
@@ -68,22 +87,15 @@ if ($variantsFilter !== null) {
 }
 echo "\n";
 
-$meta = [
-    'generated_at' => date('c'),
-    'frameworks' => [],
-];
-foreach ($frameworks as $name => $url) {
-    $meta['frameworks'][$name] = [
-        'label' => $frameworkLabels[$name] ?? null,
-        'url'   => $url,
-    ];
-}
+$meta = build_worker_meta($frameworks, $frameworkLabels, discover_worker_variants($benchDir));
+$meta['mode'] = $mode;
 
-$resultsDir = resolve_results_dir($benchDir);
+$resultsDir = resolve_worker_results_dir($benchDir);
 file_put_contents($resultsDir . '/meta.json', json_encode($meta, JSON_PRETTY_PRINT));
 
 $allHelloResults = [];
 $allJsonResults = [];
+$allDbResults = [];
 
 foreach ($concurrencyLevels as $connections) {
     echo str_repeat("=", 60) . "\n";
@@ -160,6 +172,35 @@ foreach ($concurrencyLevels as $connections) {
     }
 
     $allJsonResults["json_c$connections"] = $resultsJson;
+
+    echo str_repeat("=", 60) . "\n";
+    echo "DB ENDPOINTS (SELECT 1, c=$connections)\n";
+    echo str_repeat("=", 60) . "\n\n";
+
+    $resultsDb = [];
+
+    foreach ($dbEndpoints as $name => $dbUrl) {
+        echo "Testing $name ($dbUrl) c=$connections...\n";
+        echo str_repeat("-", 60) . "\n";
+
+        $t = min($threads, $connections);
+        $output = [];
+        $cmd = "wrk -t$t -c$connections -d$duration --latency $dbUrl 2>&1";
+        exec($cmd, $output, $exitCode);
+
+        if ($exitCode !== 0) {
+            echo "  Error: wrk failed\n\n";
+            continue;
+        }
+
+        $parsed = parseWrkOutput($output);
+        printResults($parsed);
+
+        $resultsDb[$name] = $parsed;
+        $output = [];
+    }
+
+    $allDbResults["db_c$connections"] = $resultsDb;
 }
 
 file_put_contents(
@@ -170,6 +211,11 @@ file_put_contents(
 file_put_contents(
     $resultsDir . '/json.json',
     json_encode($allJsonResults, JSON_PRETTY_PRINT)
+);
+
+file_put_contents(
+    $resultsDir . '/db.json',
+    json_encode($allDbResults, JSON_PRETTY_PRINT)
 );
 
 echo "\nResults saved to: $resultsDir\n";

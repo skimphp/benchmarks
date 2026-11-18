@@ -1,0 +1,48 @@
+name: skim_fpm
+
+# nginx + PHP-FPM variants — same framework code as worker_bench, served the
+# classic way: one shared php-fpm pool, nginx routes ports 9301-9307 to it.
+# fpm_src/ is extracted from the built worker images (see README).
+
+services:
+  php-fpm:
+    build:
+      context: .
+      dockerfile: fpm/Dockerfile
+    image: skim_fpm_php-fpm:latest
+    volumes:
+      - ./fpm_src:/apps
+    networks:
+      - worker_bench
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "9301:9301"
+      - "9302:9302"
+      - "9303:9303"
+      - "9304:9304"
+      - "9305:9305"
+      - "9306:9306"
+      - "9307:9307"
+    volumes:
+      - ./fpm_src:/apps
+      - ./fpm/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - php-fpm
+    networks:
+      - worker_bench
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bench
+      POSTGRES_USER: bench
+      POSTGRES_PASSWORD: bench
+    networks:
+      - worker_bench
+
+networks:
+  worker_bench:
+    name: skim_worker_worker_bench
+    external: true

@@ -1,0 +1,41 @@
+{
+    "generated_at": "2026-09-25T11:41:42+00:00",
+    "frameworks": {
+        "Skim": {
+            "label": "skim",
+            "url": "http:\/\/nginx:9301\/",
+            "version": null
+        },
+        "Symfony": {
+            "label": "symfony",
+            "url": "http:\/\/nginx:9302\/",
+            "version": null
+        },
+        "Laravel": {
+            "label": "laravel",
+            "url": "http:\/\/nginx:9303\/",
+            "version": null
+        },
+        "CodeIgniter 4": {
+            "label": "ci4",
+            "url": "http:\/\/nginx:9304\/",
+            "version": null
+        },
+        "Slim": {
+            "label": "slim",
+            "url": "http:\/\/nginx:9305\/",
+            "version": null
+        },
+        "Leaf": {
+            "label": "leaf",
+            "url": "http:\/\/nginx:9306\/",
+            "version": null
+        },
+        "Flight": {
+            "label": "flight",
+            "url": "http:\/\/nginx:9307\/",
+            "version": null
+        }
+    },
+    "mode": "fpm"
+}

@@ -179,25 +179,6 @@ function parse_worker_int_flag(?array $argv, string $flag, int $default): int {
 }
 }
 
-if (!function_exists('parse_worker_duration_flag')) {
-function parse_worker_duration_flag(?array $argv, string $flag, string $default): string {
-    if ($argv === null) {
-        return $default;
-    }
-    $prefix = $flag . '=';
-    foreach ($argv as $a) {
-        if (is_string($a) && str_starts_with($a, $prefix)) {
-            $val = trim(substr($a, strlen($prefix)));
-            if (preg_match('/^\d+s$/', $val)) {
-                return $val;
-            }
-            fwrite(STDERR, "WARNING: $flag expects a duration like 30s, got '$a'\n");
-        }
-    }
-    return $default;
-}
-}
-
 if (!function_exists('resolve_worker_results_dir')) {
 function resolve_worker_results_dir(string $benchDir): string {
     $envTs = getenv('BENCH_TIMESTAMP');

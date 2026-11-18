@@ -6,7 +6,9 @@ gates stay in the framework repo.
 ## Layout
 
 - `worker_bench/` — multi-framework FrankenPHP worker-mode comparison
-  (skim vs symfony vs laravel-octane vs ci4 vs slim). See `worker_bench/README.md`.
+  (skim vs symfony vs laravel-octane vs ci4 vs slim vs leaf vs flight).
+  All framework images share one multi-target `frameworks/Dockerfile`.
+  See `worker_bench/README.md`.
 - `framework/` — single-framework measurement scripts (bench_run, cache_hit,
   http_hello/json/warm, worker_mode_benchmark) moved from skim/framework.
 - `docker/bench/` — wrk bench container + nginx/php configs.
@@ -22,3 +24,6 @@ gates stay in the framework repo.
 - `worker_bench/frameworks/skim/public/index.php` targets the pre-camelCase
   API of its pinned commit — port to `Skim\Core\*` when re-pinning to a
   migrated framework release.
+- `skim_worker.env` pins `SKIM_COMMIT=8d36a2c…` on deleted branch
+  `worker_mode`; the commit is unreachable upstream, so the `skim` image
+  cannot be rebuilt until re-pinned (existing image still runs fine).

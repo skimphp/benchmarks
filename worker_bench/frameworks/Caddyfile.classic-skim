@@ -1,0 +1,8 @@
+{
+    auto_https off
+}
+
+:80 {
+    root * /app/frameworks/skim/public
+    php_server
+}

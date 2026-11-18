@@ -1,0 +1,83 @@
+{
+    "generated_at": "2026-09-25T09:19:17+00:00",
+    "results": {
+        "skim": {
+            "http_hello": {
+                "name": "http_hello",
+                "url": "http://skim/",
+                "requests": 100,
+                "errors": 0,
+                "total_s": 0.0746,
+                "avg_ms": 6.353,
+                "p95_ms": 49.027,
+                "rps": 1341.2,
+                "target_avg_ms": 2,
+                "ok": false
+            },
+            "http_json": {
+                "name": "http_json",
+                "url": "http://skim/json",
+                "requests": 100,
+                "errors": 0,
+                "total_s": 0.0331,
+                "avg_ms": 2.029,
+                "p95_ms": 5.441,
+                "rps": 3017.2,
+                "target_avg_ms": 7,
+                "ok": true
+            }
+        },
+        "leaf": {
+            "http_hello": {
+                "name": "http_hello",
+                "url": "http://leaf/",
+                "requests": 100,
+                "errors": 0,
+                "total_s": 0.0284,
+                "avg_ms": 1.878,
+                "p95_ms": 7.616,
+                "rps": 3519.3,
+                "target_avg_ms": 2,
+                "ok": true
+            },
+            "http_json": {
+                "name": "http_json",
+                "url": "http://leaf/json",
+                "requests": 100,
+                "errors": 0,
+                "total_s": 0.0243,
+                "avg_ms": 1.555,
+                "p95_ms": 2.651,
+                "rps": 4109.4,
+                "target_avg_ms": 7,
+                "ok": true
+            }
+        },
+        "flight": {
+            "http_hello": {
+                "name": "http_hello",
+                "url": "http://flight/",
+                "requests": 100,
+                "errors": 0,
+                "total_s": 0.0317,
+                "avg_ms": 2.054,
+                "p95_ms": 6.053,
+                "rps": 3154.3,
+                "target_avg_ms": 2,
+                "ok": false
+            },
+            "http_json": {
+                "name": "http_json",
+                "url": "http://flight/json",
+                "requests": 100,
+                "errors": 0,
+                "total_s": 0.0292,
+                "avg_ms": 1.83,
+                "p95_ms": 3.194,
+                "rps": 3420.9,
+                "target_avg_ms": 7,
+                "ok": true
+            }
+        }
+    }
+}

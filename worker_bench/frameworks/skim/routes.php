@@ -11,6 +11,12 @@ $app->router->get('/json', function (): void {
     echo json_encode(['time' => microtime(true)]);
 });
 
+$app->router->get('/db', function (): void {
+    $pdo = new PDO('pgsql:host=postgres;dbname=bench', 'bench', 'bench');
+    $pdo->query('SELECT 1');
+    echo 'ok';
+});
+
 $app->router->get('/bench', function (): array {
     $sleep = (int) ($_GET['sleep'] ?? 0);
     if ($sleep > 0 && $sleep < 10000) {

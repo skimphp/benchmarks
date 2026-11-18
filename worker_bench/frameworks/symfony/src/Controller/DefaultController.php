@@ -19,4 +19,12 @@ class DefaultController
     {
         return new JsonResponse(['time' => 0.0]);
     }
+
+    #[Route('/db', name: 'db')]
+    public function db(): Response
+    {
+        $pdo = new \PDO('pgsql:host=postgres;dbname=bench', 'bench', 'bench');
+        $pdo->query('SELECT 1');
+        return new Response('ok');
+    }
 }

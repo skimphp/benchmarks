@@ -16,4 +16,11 @@ class Home extends Controller
     {
         return $this->response->setJSON(['time' => 0.0]);
     }
+
+    public function db(): string
+    {
+        $pdo = new \PDO('pgsql:host=postgres;dbname=bench', 'bench', 'bench');
+        $pdo->query('SELECT 1');
+        return 'ok';
+    }
 }

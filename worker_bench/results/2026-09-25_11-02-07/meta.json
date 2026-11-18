@@ -1,0 +1,41 @@
+{
+    "generated_at": "2026-09-25T11:02:07+00:00",
+    "frameworks": {
+        "Skim": {
+            "label": "skim",
+            "url": "http:\/\/skim\/",
+            "version": null
+        },
+        "Symfony": {
+            "label": "symfony",
+            "url": "http:\/\/symfony\/",
+            "version": null
+        },
+        "Laravel": {
+            "label": "laravel",
+            "url": "http:\/\/laravel\/",
+            "version": null
+        },
+        "CodeIgniter 4": {
+            "label": "ci4",
+            "url": "http:\/\/ci4\/",
+            "version": null
+        },
+        "Slim": {
+            "label": "slim",
+            "url": "http:\/\/slim\/",
+            "version": null
+        },
+        "Leaf": {
+            "label": "leaf",
+            "url": "http:\/\/leaf\/",
+            "version": null
+        },
+        "Flight": {
+            "label": "flight",
+            "url": "http:\/\/flight\/",
+            "version": null
+        }
+    },
+    "mode": "worker"
+}
